@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    Hello World
+  </div>
+  <!-- <script src="../../dist/vue.js"></script> -->
+  <script src="../../dist/vue.js"></script>
+  <!-- 运行时版本不包括编译器，
+      编译器是把template转换成render函数
+      单文件组件运行的时候会被打包成render函数，所以也是不需要编译器的
+      vue-cli创建的项目使用的也是运行时版本
+  -->
+  <script>
+    // compiler
+    // 需要编译器，把template转换成render函数
+    // const vm = new Vue({
+    //   el: '#app',
+    //   template: '<h1>{{ msg }}</h1>',
+    //   data: {
+    //     msg: 'Hello Vue'
+    //   }
+    // })
+    const vm = new Vue({
+      el: '#app',
+      // template: '<h1>{{ msg }}</h1>',
+      // render(h){ return h('h1', this.msg)},
+      render: Vue.compile('<h1>{{ msg }}</h1>').render,
+      data: {
+        msg: 'Hello Vue2'
+      }
+    })
+  </script>
+</body>
+</html>
