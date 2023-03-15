@@ -35,23 +35,31 @@ export function toggleObserving (value: boolean) {
  * collect dependencies and dispatch updates.
  */
 export class Observer {
+  // 观测对象
   value: any;
+  // 依赖对象
   dep: Dep;
+  // 实例计数器
   vmCount: number; // number of vms that have this object as root $data
 
   constructor (value: any) {
     this.value = value
     this.dep = new Dep()
+    // 初始化实例的vmCount为0
     this.vmCount = 0
+    // 将实例挂载到观察对象的 __ob__ 属性上
     def(value, '__ob__', this)
     if (Array.isArray(value)) {
+      // 数组的响应式处理
       if (hasProto) {
         protoAugment(value, arrayMethods)
       } else {
         copyAugment(value, arrayMethods, arrayKeys)
       }
+      // 为数组中的每一个对象创建一个observer实例
       this.observeArray(value)
     } else {
+      // 遍历对象中的每一个属性，转换成getter和setter
       this.walk(value)
     }
   }
@@ -107,11 +115,14 @@ function copyAugment (target: Object, src: Object, keys: Array<string>) {
  * returns the new observer if successfully observed,
  * or the existing observer if the value already has one.
  */
+// 作用是将对象中的所有属性设置getter和setter，并使用__ob__来标识已经被监听
 export function observe (value: any, asRootData: ?boolean): Observer | void {
+  // 如果传过来的value不是对象，则直接返回
   if (!isObject(value) || value instanceof VNode) {
     return
   }
   let ob: Observer | void
+  // 如果 value 有 __ob__(observer对象)属性（已经做过响应式处理），结束并返回它
   if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
     ob = value.__ob__
   } else if (
@@ -139,30 +150,39 @@ export function defineReactive (
   customSetter?: ?Function,
   shallow?: boolean
 ) {
+  // 创建依赖对象实例
   const dep = new Dep()
-
+  // 获取obj的**属性描述符**对象，如果不可配置(不可删除和重新定义)，则结束
   const property = Object.getOwnPropertyDescriptor(obj, key)
   if (property && property.configurable === false) {
     return
   }
 
   // cater for pre-defined getter/setters
+  // 给setter和getter加入依赖收集和派发更新的功能
   const getter = property && property.get
   const setter = property && property.set
+  // 如果没传第三个参数val，则自动获取
   if ((!getter || setter) && arguments.length === 2) {
     val = obj[key]
   }
-
+  // 判断是否递归观察子对象，并将子对象属性都转换成getter/setter，返回子观察对象
   let childOb = !shallow && observe(val)
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: true,
+    // getter时进行依赖收集(将依赖该属性的watcher对象，添加到dep对象的subs数组中)
     get: function reactiveGetter () {
+      // 调用用户的getter来获取最新的value值
       const value = getter ? getter.call(obj) : val
+      // 如果存在当前依赖目标，即watcher对象，则建立依赖
       if (Dep.target) {
         dep.depend()
+        // 如果子观察目标存在，继续处理子对象的依赖关系
         if (childOb) {
+          // 每一个obsever对象都有一个dep的属性
           childOb.dep.depend()
+          // 如果属性是数组，则特殊处理收集数组对象依赖
           if (Array.isArray(value)) {
             dependArray(value)
           }
@@ -171,8 +191,10 @@ export function defineReactive (
       return value
     },
     set: function reactiveSetter (newVal) {
+      // 先获取用户设置的 getter 来预处理value
       const value = getter ? getter.call(obj) : val
       /* eslint-disable no-self-compare */
+      // 如果新值等于旧值，或者新值旧值为NaN则不执行
       if (newVal === value || (newVal !== newVal && value !== value)) {
         return
       }
@@ -181,13 +203,17 @@ export function defineReactive (
         customSetter()
       }
       // #7981: for accessor properties without setter
+      // 如果没有 setter 直接返回
       if (getter && !setter) return
+      // 如果预定义setter存在则调用，否则直接更新新值
       if (setter) {
         setter.call(obj, newVal)
       } else {
         val = newVal
       }
+      // 如果新值是对象，观察子对象并返回 子的 observer 对象
       childOb = !shallow && observe(newVal)
+      // 派发更新，发布变更通知
       dep.notify()
     }
   })

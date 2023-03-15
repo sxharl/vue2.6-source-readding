@@ -21,6 +21,7 @@ export function isReserved (str: string): boolean {
 export function def (obj: Object, key: string, val: any, enumerable?: boolean) {
   Object.defineProperty(obj, key, {
     value: val,
+    // 不可枚举，将来要遍历对象中的所有数据进行getter和setter设置
     enumerable: !!enumerable,
     writable: true,
     configurable: true

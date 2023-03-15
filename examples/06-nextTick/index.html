@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <button id="counter" @click="increment">{{ count }}</button>
+  </div>
+  <script src="../../dist/vue.js"></script>
+  <script>
+    /*
+    异步更新队列-nextTick()
+      Vue更新DOM是异步执行的，批量的。
+      在下次DOM更新循环结束之后执行延迟回调。在修改数据之后立即使用这个方法，获取更新后的DOM。
+    vm.$nextTick(function(){// 操作DOM })
+    */
+
+    const vm = new Vue({
+      el: '#app',
+      data: {
+        count: 0,
+      },
+    methods:{
+      increment() {
+        this.count++
+        // DOM 还未更新
+        console.log(document.getElementById('counter').textContent) // 0
+
+        vm.$nextTick(function(){
+          console.log(document.getElementById('counter').textContent) // 1
+        })
+        // DOM 此时已经更新
+        // console.log(document.getElementById('counter').textContent) // 1
+      }
+    }
+    })
+  </script>
+</body>
+</html>

@@ -8,10 +8,10 @@
 </head>
 <body>
   <div id="app">
-    Hello World
+    {{ msg }}
   </div>
-  <!-- <script src="../../dist/vue.js"></script> -->
   <script src="../../dist/vue.js"></script>
+  <!-- <script src="../../dist/vue.runtime.js"></script> -->
   <!-- 运行时版本不包括编译器，
       编译器是把template转换成render函数
       单文件组件运行的时候会被打包成render函数，所以也是不需要编译器的
@@ -31,11 +31,11 @@
       el: '#app',
       // template: '<h1>{{ msg }}</h1>',
       // render(h){ return h('h1', this.msg)},
-      render: Vue.compile('<h1>{{ msg }}</h1>').render,
+      // render: Vue.compile('<h1>{{ msg }}</h1>').render,
       data: {
-        msg: 'Hello Vue2'
+        msg: 'Hi Vue2'
       }
-    })
+    }).$mount('#app')
   </script>
 </body>
 </html>
